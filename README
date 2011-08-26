@@ -1,0 +1,8 @@
+This is a simple Bloom filter implementation written in  Go.
+
+For the theory behind Bloom filters, read http://en.wikipedia.org/wiki/Bloom_filter
+
+This design uses a user-supplied hash function and salts provided at filter construction time.
+
+To determine how many salts are required, call 'SaltsRequired' with the designed filter capacity
+and false positive percentage.  bloom_test.go shows how to do this.
