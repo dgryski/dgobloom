@@ -3,6 +3,10 @@
    A Bloom Filter is a probablistic data structure which allows testing set membership.
    A negative answer means the value is not in the set.  A positive answer means the element
    is probably is the set.  The desired rate false positives can be set at filter construction time.
+
+   Copyright (c) 2011 Damian Gryski <damian@gryski.com>
+
+   Licensed under the GPLv3, or at your option any later version.
 */
 
 package dgobloom
