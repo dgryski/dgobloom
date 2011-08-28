@@ -1,3 +1,10 @@
+/* Package dgobloom implements a simple Bloom Filter for strings.
+
+   A Bloom Filter is a probablistic data structure which allows testing set membership.
+   A negative answer means the value is not in the set.  A positive answer means the element
+   is probably is the set.  The desired rate false positives can be set at filter construction time.
+*/
+
 package dgobloom
 
 import (
@@ -5,6 +12,7 @@ import (
 	"math"
 )
 
+// Internal routines for the bit vector
 func getbit(d []uint32, bit uint32) uint {
 
 	shift := bit % 32
@@ -35,7 +43,19 @@ func nextPowerOfTwo(i uint32) uint32 {
 	return n
 }
 
-type BloomFilter struct {
+type BloomFilter interface {
+	// Insert an element into the set.
+	Insert(b []byte) bool
+
+	// Determine if an element is in the set
+	Exists(b []byte) bool
+
+	// Return the number of elements currently stored in the set
+	Elements() uint32
+}
+
+// Internal struct for our bloom filter
+type bloomFilter struct {
 	capacity uint32
 	elements uint32
 	bits     uint32   // size of bit vector in bits
@@ -44,8 +64,9 @@ type BloomFilter struct {
 	salts    [][]byte
 }
 
-func (bf *BloomFilter) Elements() uint32 { return bf.elements }
+func (bf *bloomFilter) Elements() uint32 { return bf.elements }
 
+// Determine the number of bits required for the desired capacity and false positive rate.
 func FilterBits(capacity uint32, falsePositiveRate float64) uint32 {
 	bits := float64(capacity) * -math.Log(falsePositiveRate) / (math.Log(2.0) * math.Log(2.0)) // in bits
 	m := nextPowerOfTwo(uint32(bits))
@@ -57,6 +78,7 @@ func FilterBits(capacity uint32, falsePositiveRate float64) uint32 {
 	return m
 }
 
+// Determine the number of salts required by the constructor for the desired capacity and false positive rate.
 func SaltsRequired(capacity uint32, falsePositiveRate float64) uint {
 	m := FilterBits(capacity, falsePositiveRate)
 	salts := uint(0.7 * float32(float64(m)/float64(capacity)))
@@ -75,9 +97,9 @@ func uint32ToByteArray(salt uint32) []byte {
 	return p
 }
 
-func NewBloomFilter(capacity uint32, falsePositiveRate float64, h hash.Hash32, salts []uint32) *BloomFilter {
+func NewBloomFilter(capacity uint32, falsePositiveRate float64, h hash.Hash32, salts []uint32) BloomFilter {
 
-	bf := new(BloomFilter)
+	bf := new(bloomFilter)
 
 	bf.capacity = capacity
 	bf.bits = FilterBits(capacity, falsePositiveRate)
@@ -92,7 +114,7 @@ func NewBloomFilter(capacity uint32, falsePositiveRate float64, h hash.Hash32, s
 	return bf
 }
 
-func (bf *BloomFilter) Insert(b []byte) bool {
+func (bf *bloomFilter) Insert(b []byte) bool {
 
 	bf.elements++
 
@@ -106,7 +128,7 @@ func (bf *BloomFilter) Insert(b []byte) bool {
 	return bf.elements < bf.capacity
 }
 
-func (bf *BloomFilter) Exists(b []byte) bool {
+func (bf *bloomFilter) Exists(b []byte) bool {
 
 	for _, s := range bf.salts {
 		bf.h.Reset()
@@ -120,14 +142,4 @@ func (bf *BloomFilter) Exists(b []byte) bool {
 
 	return true
 
-}
-
-func (bf *BloomFilter) FillPercentage() float64 {
-
-	set := uint(0)
-	for i := uint32(0); i < bf.bits; i++ {
-		set += getbit(bf.filter, i)
-	}
-
-	return float64(set) / float64(bf.bits)
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"rand"
 	"testing"
+//        "../dgohash.git/_obj/dgohash"
 )
 
 const CAPACITY = 100000
@@ -60,7 +61,6 @@ func TestBloomFilter(t *testing.T) {
 	error_pct := errors / total
 
 	t.Log("error percentage: (", errors, "/", total, ")=", error_pct)
-	t.Log("load: ", b.FillPercentage())
 
 	if error_pct > ERRPCT {
 		t.Fail()
