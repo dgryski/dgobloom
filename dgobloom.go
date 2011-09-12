@@ -70,7 +70,7 @@ type bloomFilter struct {
 
 func (bf *bloomFilter) Elements() uint32 { return bf.elements }
 
-// Determine the number of bits required for the desired capacity and false positive rate.
+// FilterBits returns the number of bits required for the desired capacity and false positive rate.
 func FilterBits(capacity uint32, falsePositiveRate float64) uint32 {
 	bits := float64(capacity) * -math.Log(falsePositiveRate) / (math.Log(2.0) * math.Log(2.0)) // in bits
 	m := nextPowerOfTwo(uint32(bits))
@@ -82,7 +82,7 @@ func FilterBits(capacity uint32, falsePositiveRate float64) uint32 {
 	return m
 }
 
-// Determine the number of salts required by the constructor for the desired capacity and false positive rate.
+// SaltsRequired returns the number of salts required by the constructor for the desired capacity and false positive rate.
 func SaltsRequired(capacity uint32, falsePositiveRate float64) uint {
 	m := FilterBits(capacity, falsePositiveRate)
 	salts := uint(0.7 * float32(float64(m)/float64(capacity)))
@@ -101,6 +101,8 @@ func uint32ToByteArray(salt uint32) []byte {
 	return p
 }
 
+// NewBloomFilter returns a new bloom filter with the specified capacity and false positive rate.
+// The hash function h will be salted with the array of salts.
 func NewBloomFilter(capacity uint32, falsePositiveRate float64, h hash.Hash32, salts []uint32) BloomFilter {
 
 	bf := new(bloomFilter)
@@ -118,6 +120,8 @@ func NewBloomFilter(capacity uint32, falsePositiveRate float64, h hash.Hash32, s
 	return bf
 }
 
+// Insert inserts the byte array b into the bloom filter.
+// If the function returns false, the capacity of the bloom filter has been reached.  Further inserts will increase the rate of false positives.
 func (bf *bloomFilter) Insert(b []byte) bool {
 
 	bf.elements++
@@ -132,6 +136,7 @@ func (bf *bloomFilter) Insert(b []byte) bool {
 	return bf.elements < bf.capacity
 }
 
+// Exists checks the bloom filter for the byte array b
 func (bf *bloomFilter) Exists(b []byte) bool {
 
 	for _, s := range bf.salts {
