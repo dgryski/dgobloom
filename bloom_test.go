@@ -6,10 +6,10 @@ package dgobloom
 import (
 	"bufio"
 	"hash/fnv"
+	"math/rand"
 	"os"
-	"rand"
 	"testing"
-//        "../dgohash.git/_obj/dgohash"
+	//        "../dgohash.git/_obj/dgohash"
 )
 
 const CAPACITY = 100000
