@@ -8,7 +8,6 @@
 
    Licensed under the GPLv3, or at your option any later version.
 */
-
 package dgobloom
 
 import (
