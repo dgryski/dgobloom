@@ -17,13 +17,13 @@ const ERRPCT = 0.01
 
 func TestBloomFilter(t *testing.T) {
 
-	salts_needed := SaltsRequired(CAPACITY, ERRPCT)
+	saltsNeeded := SaltsRequired(CAPACITY, ERRPCT)
 
-	t.Log("generating", salts_needed, "salts")
+	t.Log("generating", saltsNeeded, "salts")
 
-	salts := make([]uint32, salts_needed)
+	salts := make([]uint32, saltsNeeded)
 
-	for i := uint(0); i < salts_needed; i++ {
+	for i := uint(0); i < saltsNeeded; i++ {
 		salts[i] = rand.Uint32()
 	}
 
@@ -61,11 +61,11 @@ func TestBloomFilter(t *testing.T) {
 		total++
 	}
 
-	error_pct := errors / total
+	errorPct := errors / total
 
-	t.Log("error percentage: (", errors, "/", total, ")=", error_pct)
+	t.Log("error percentage: (", errors, "/", total, ")=", errorPct)
 
-	if error_pct > ERRPCT {
+	if errorPct > ERRPCT {
 		t.Fail()
 	}
 }
