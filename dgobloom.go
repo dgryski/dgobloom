@@ -1,12 +1,12 @@
-/* Package dgobloom implements a simple Bloom Filter for strings.
+// Package dgobloom implements a simple Bloom Filter for strings.
+/*
+A Bloom Filter is a probablistic data structure which allows testing set membership.
+A negative answer means the value is not in the set.  A positive answer means the element
+is probably is the set.  The desired rate false positives can be set at filter construction time.
 
-   A Bloom Filter is a probablistic data structure which allows testing set membership.
-   A negative answer means the value is not in the set.  A positive answer means the element
-   is probably is the set.  The desired rate false positives can be set at filter construction time.
+Copyright (c) 2011 Damian Gryski <damian@gryski.com>
 
-   Copyright (c) 2011 Damian Gryski <damian@gryski.com>
-
-   Licensed under the GPLv3, or at your option any later version.
+Licensed under the GPLv3, or at your option any later version.
 */
 package dgobloom
 
@@ -16,6 +16,8 @@ import (
 )
 
 // Internal routines for the bit vector
+
+// get bit 'bit' in the bitvector d
 func getbit(d []uint32, bit uint32) uint {
 
 	shift := bit % 32
@@ -25,12 +27,9 @@ func getbit(d []uint32, bit uint32) uint {
 	return uint(bb >> shift)
 }
 
+// set bit 'bit' in the bitvector d
 func setbit(d []uint32, bit uint32) {
 	d[bit/32] |= (1 << (bit % 32))
-}
-
-func clearbit(d []uint32, bit uint32) {
-	d[bit/32] &= ^(1 << (bit % 32))
 }
 
 // 32-bit, which is why it only goes up to 16
@@ -46,6 +45,7 @@ func nextPowerOfTwo(i uint32) uint32 {
 	return n
 }
 
+// BloomFilter allow probabilistic membership tests
 type BloomFilter interface {
 	// Insert an element into the set.
 	Insert(b []byte) bool
@@ -149,5 +149,4 @@ func (bf *bloomFilter) Exists(b []byte) bool {
 	}
 
 	return true
-
 }
