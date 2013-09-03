@@ -9,10 +9,9 @@ import (
 	"math/rand"
 	"os"
 	"testing"
-	//        "../dgohash.git/_obj/dgohash"
 )
 
-const CAPACITY = 100000
+const CAPACITY = 10000
 const ERRPCT = 0.01
 
 func TestBloomFilter(t *testing.T) {
