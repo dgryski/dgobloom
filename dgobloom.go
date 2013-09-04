@@ -1,5 +1,6 @@
-// Package dgobloom implements a simple Bloom Filter for strings.
 /*
+Package dgobloom implements a simple Bloom Filter for strings.
+
 A Bloom Filter is a probablistic data structure which allows testing set membership.
 A negative answer means the value is not in the set.  A positive answer means the element
 is probably is the set.  The desired rate false positives can be set at filter construction time.
