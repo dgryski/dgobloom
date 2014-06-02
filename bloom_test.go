@@ -26,8 +26,8 @@ func TestBloomFilter(t *testing.T) {
 		salts[i] = rand.Uint32()
 	}
 
-	b := NewBloomFilter(CAPACITY, ERRPCT, fnv.New32(), salts)
-	b2 := NewBloomFilter(CAPACITY, ERRPCT, fnv.New32(), salts)
+	b := NewBloomFilter(CAPACITY, ERRPCT, fnv.New32a(), salts)
+	b2 := NewBloomFilter(CAPACITY, ERRPCT, fnv.New32a(), salts)
 
 	fh, _ := os.Open("/usr/share/dict/words")
 
