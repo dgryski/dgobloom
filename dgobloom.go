@@ -56,6 +56,9 @@ type BloomFilter interface {
 
 	// Return the number of elements currently stored in the set
 	Elements() uint32
+
+	// Merge two bloom filters
+	Merge(BloomFilter)
 }
 
 // Internal struct for our bloom filter
@@ -150,4 +153,14 @@ func (bf *bloomFilter) Exists(b []byte) bool {
 	}
 
 	return true
+}
+
+// Merge adds bf2 into the current bloom filter.  They must have the same dimensions and be constructed with identical random seeds.
+func (bf *bloomFilter) Merge(bf2 BloomFilter) {
+
+	other := bf2.(*bloomFilter)
+
+	for i, v := range other.filter {
+		bf.filter[i] |= v
+	}
 }
