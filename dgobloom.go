@@ -61,6 +61,9 @@ type BloomFilter interface {
 
 	// Merge two bloom filters
 	Merge(BloomFilter)
+
+	// Compress a bloom filter
+	Compress()
 }
 
 // Internal struct for our bloom filter
@@ -165,4 +168,25 @@ func (bf *bloomFilter) Merge(bf2 BloomFilter) {
 	for i, v := range other.filter {
 		bf.filter[i] |= v
 	}
+}
+
+// Compress halves the space used by the bloom filter, at the cost of increased error rate.
+func (bf *bloomFilter) Compress() {
+
+	w := len(bf.filter)
+
+	if w&(w-1) != 0 {
+		panic("width must be a power of two")
+	}
+
+	neww := w / 2
+
+	// We allocate a new array here so old space can actually be garbage collected.
+	// TODO(dgryski): reslice and only reallocate every few compressions
+	row := make([]uint32, neww)
+	for j := 0; j < neww; j++ {
+		row[j] = bf.filter[j] + bf.filter[j+neww]
+	}
+	bf.filter = row
+	bf.bits /= 2
 }
