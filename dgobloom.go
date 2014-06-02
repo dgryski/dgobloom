@@ -18,8 +18,10 @@ import (
 
 // Internal routines for the bit vector
 
+type bitvector []uint32
+
 // get bit 'bit' in the bitvector d
-func getbit(d []uint32, bit uint32) uint {
+func (d bitvector) get(bit uint32) uint {
 
 	shift := bit % 32
 	bb := d[bit/32]
@@ -29,7 +31,7 @@ func getbit(d []uint32, bit uint32) uint {
 }
 
 // set bit 'bit' in the bitvector d
-func setbit(d []uint32, bit uint32) {
+func (d bitvector) set(bit uint32) {
 	d[bit/32] |= (1 << (bit % 32))
 }
 
@@ -65,8 +67,8 @@ type BloomFilter interface {
 type bloomFilter struct {
 	capacity uint32
 	elements uint32
-	bits     uint32   // size of bit vector in bits
-	filter   []uint32 // our filter bit vector
+	bits     uint32    // size of bit vector in bits
+	filter   bitvector // our filter bit vector
 	h        hash.Hash32
 	salts    [][]byte
 }
@@ -133,7 +135,7 @@ func (bf *bloomFilter) Insert(b []byte) bool {
 		bf.h.Reset()
 		bf.h.Write(s)
 		bf.h.Write(b)
-		setbit(bf.filter, bf.h.Sum32()%bf.bits)
+		bf.filter.set(bf.h.Sum32() % bf.bits)
 	}
 
 	return bf.elements < bf.capacity
@@ -147,7 +149,7 @@ func (bf *bloomFilter) Exists(b []byte) bool {
 		bf.h.Write(s)
 		bf.h.Write(b)
 
-		if getbit(bf.filter, bf.h.Sum32()%bf.bits) == 0 {
+		if bf.filter.get(bf.h.Sum32()%bf.bits) == 0 {
 			return false
 		}
 	}
