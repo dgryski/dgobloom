@@ -27,6 +27,7 @@ func TestBloomFilter(t *testing.T) {
 	}
 
 	b := NewBloomFilter(CAPACITY, ERRPCT, fnv.New32(), salts)
+	b2 := NewBloomFilter(CAPACITY, ERRPCT, fnv.New32(), salts)
 
 	fh, _ := os.Open("/usr/share/dict/words")
 
@@ -38,6 +39,8 @@ func TestBloomFilter(t *testing.T) {
 			break
 		}
 
+		b2.Insert(l)
+
 		if !b.Insert(l) {
 			break
 		}
@@ -47,6 +50,9 @@ func TestBloomFilter(t *testing.T) {
 
 	total := 0.0
 	errors := 0.0
+	errors2 := 0.0
+
+	b2.Compress()
 
 	for {
 		l, _, err := buf.ReadLine()
@@ -57,12 +63,18 @@ func TestBloomFilter(t *testing.T) {
 		if b.Exists(l) {
 			errors++
 		}
+
+		if b2.Exists(l) {
+			errors2++
+		}
+
 		total++
 	}
 
 	errorPct := errors / total
 
 	t.Log("error percentage: (", errors, "/", total, ")=", errorPct)
+	t.Log("error percentage2: (", errors2, "/", total, ")=", errors2/total)
 
 	if errorPct > ERRPCT {
 		t.Fail()
