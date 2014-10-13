@@ -37,13 +37,14 @@ func (d bitvector) set(bit uint32) {
 
 // 32-bit, which is why it only goes up to 16
 // return the integer >= i which is a power of two
-func nextPowerOfTwo(i uint32) uint32 {
+func nextPowerOfTwo(i uint64) uint64 {
 	n := i - 1
 	n |= n >> 1
 	n |= n >> 2
 	n |= n >> 4
 	n |= n >> 8
 	n |= n >> 16
+	n |= n >> 32
 	n++
 	return n
 }
@@ -70,7 +71,7 @@ type BloomFilter interface {
 type bloomFilter struct {
 	capacity uint32
 	elements uint32
-	bits     uint32    // size of bit vector in bits
+	bits     uint64    // size of bit vector in bits
 	filter   bitvector // our filter bit vector
 	h        hash.Hash32
 	salts    [][]byte
@@ -79,9 +80,9 @@ type bloomFilter struct {
 func (bf *bloomFilter) Elements() uint32 { return bf.elements }
 
 // FilterBits returns the number of bits required for the desired capacity and false positive rate.
-func FilterBits(capacity uint32, falsePositiveRate float64) uint32 {
+func FilterBits(capacity uint32, falsePositiveRate float64) uint64 {
 	bits := float64(capacity) * -math.Log(falsePositiveRate) / (math.Log(2.0) * math.Log(2.0)) // in bits
-	m := nextPowerOfTwo(uint32(bits))
+	m := nextPowerOfTwo(uint64(bits))
 
 	if m < 1024 {
 		return 1024
@@ -138,7 +139,7 @@ func (bf *bloomFilter) Insert(b []byte) bool {
 		bf.h.Reset()
 		bf.h.Write(s)
 		bf.h.Write(b)
-		bf.filter.set(bf.h.Sum32() % bf.bits)
+		bf.filter.set(uint32(uint64(bf.h.Sum32()) % bf.bits))
 	}
 
 	return bf.elements < bf.capacity
@@ -152,7 +153,7 @@ func (bf *bloomFilter) Exists(b []byte) bool {
 		bf.h.Write(s)
 		bf.h.Write(b)
 
-		if bf.filter.get(bf.h.Sum32()%bf.bits) == 0 {
+		if bf.filter.get(uint32(uint64(bf.h.Sum32())%bf.bits)) == 0 {
 			return false
 		}
 	}
