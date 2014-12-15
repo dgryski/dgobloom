@@ -186,7 +186,7 @@ func (bf *bloomFilter) Compress() {
 	// TODO(dgryski): reslice and only reallocate every few compressions
 	row := make([]uint32, neww)
 	for j := 0; j < neww; j++ {
-		row[j] = bf.filter[j] + bf.filter[j+neww]
+		row[j] = bf.filter[j] | bf.filter[j+neww]
 	}
 	bf.filter = row
 	bf.bits /= 2
